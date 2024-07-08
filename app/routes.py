@@ -1,8 +1,15 @@
 from flask import Blueprint, request, jsonify, abort
 from flask_login import login_user, current_user, login_required, logout_user
 from .models import db, Users, Post, Role
+from sqlalchemy import inspect, text
+from .users import create_admin_user
 
 routes = Blueprint('routes', __name__)
+
+@routes.route('/create_admin', methods=['GET'])
+def create_admin():
+    create_admin_user()
+    return 'Admin user created successfully!'
 
 @routes.route('/register', methods=['POST'])
 def register():
@@ -93,3 +100,26 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({'message': 'Post deleted successfully'}), 200
+
+@routes.route('/tables', methods=['GET'])
+def list_tables():
+    inspector = inspect(db.engine)
+    tables = inspector.get_table_names()
+    return jsonify(tables)
+
+@routes.route('/tables/<table_name>', methods=['GET'])
+def table_content(table_name):
+    # Construye la consulta
+    query = text(f"SELECT * FROM {table_name}")
+    
+    # Ejecuta la consulta usando db.session.execute
+    result = db.session.execute(query)
+    
+    # Procesa los resultados
+    rows = result.fetchall()
+    column_names = result.keys()
+    
+    # Formatea los resultados en una lista de diccionarios
+    content = [dict(zip(column_names, row)) for row in rows]
+    
+    return jsonify(content)

@@ -31,6 +31,8 @@ class Post(db.Model):
     description = db.Column(db.Text, nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    shipping = db.Column(db.Boolean, nullable=False, default=False)
+    offer = db.Column(db.Boolean, nullable=False, default=False)
 
     def __str__(self):
         return f'Post {self.title}, {self.description}, {self.price}, {self.quantity}'
