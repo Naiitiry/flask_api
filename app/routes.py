@@ -2,14 +2,8 @@ from flask import Blueprint, request, jsonify, abort
 from flask_login import login_user, current_user, login_required, logout_user
 from .models import db, Users, Post, Role
 from sqlalchemy import inspect, text
-from .users import create_admin_user
 
 routes = Blueprint('routes', __name__)
-
-@routes.route('/create_admin', methods=['GET'])
-def create_admin():
-    create_admin_user()
-    return 'Admin user created successfully!'
 
 @routes.route('/register', methods=['POST'])
 def register():
