@@ -44,7 +44,10 @@ def create_post():
     description = data['description']
     price = data['price']
     quantity = data['quantity']
-    post = Post(title=title, description=description, price=price, quantity=quantity)
+    # Extrae los datos opcionales si están presentes, o usa los valores por defecto
+    shipping = data.get('shipping', False)
+    offer = data.get('offer', False)
+    post = Post(title=title, description=description, price=price, quantity=quantity,shipping=shipping,offer=offer)
     db.session.add(post)
     db.session.commit()
     return jsonify({'message': 'Post created successfully'}), 201
@@ -57,7 +60,9 @@ def get_posts():
         'title': post.title,
         'description': post.description,
         'price': post.price,
-        'quantity': post.quantity
+        'quantity': post.quantity,
+        'shipping': post.shipping,
+        'offer': post.offer
     } for post in posts]), 200
 
 @routes.route('/posts/<int:post_id>', methods=['GET'])
@@ -82,6 +87,8 @@ def update_post(post_id):
     post.description = data['description']
     post.price = data['price']
     post.quantity = data['quantity']
+    post.shipping = data['shipping']
+    post.offer = data['offer']
     db.session.commit()
     return jsonify({'message': 'Post updated successfully'}), 200
 
@@ -94,26 +101,3 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     return jsonify({'message': 'Post deleted successfully'}), 200
-
-@routes.route('/tables', methods=['GET'])
-def list_tables():
-    inspector = inspect(db.engine)
-    tables = inspector.get_table_names()
-    return jsonify(tables)
-
-@routes.route('/tables/<table_name>', methods=['GET'])
-def table_content(table_name):
-    # Construye la consulta
-    query = text(f"SELECT * FROM {table_name}")
-    
-    # Ejecuta la consulta usando db.session.execute
-    result = db.session.execute(query)
-    
-    # Procesa los resultados
-    rows = result.fetchall()
-    column_names = result.keys()
-    
-    # Formatea los resultados en una lista de diccionarios
-    content = [dict(zip(column_names, row)) for row in rows]
-    
-    return jsonify(content)
