@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify, abort
 from flask_login import login_user, current_user, login_required, logout_user
 from .models import db, Users, Post, Role
-from sqlalchemy import inspect, text
 
 routes = Blueprint('routes', __name__)
 
